@@ -25,7 +25,7 @@ function welcome() {
     var query = "SELECT * FROM products";
     connection.query(query, function (err, res) {
         for (var i = 0; i < res.length; i++) {
-            productInfo = "    id: " + res[i].item_id + " || item: " + res[i].product_name + " || price: $" + res[i].price;
+            productInfo = "    ID: " + res[i].item_id + " || item: " + res[i].product_name + " || price: $" + res[i].price;
             products.push(productInfo);
             console.log(productInfo + "\n");
         }
@@ -63,7 +63,7 @@ function shopping() {
         .prompt({
             name: "items",
             type: "input",
-            message: "Which item would you like to purchase?",
+            message: "Please enter the ID of the item would you like to purchase.",
             validate: function (value) {
                 if (isNaN(value) === false && value >= 1 && value <= 10) {
                     return true;
