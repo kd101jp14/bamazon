@@ -63,14 +63,18 @@ function shopping() {
         })
         .then(function (answer) {
             var query = "SELECT * FROM products";
+            // Subtract 1 to make sure that the number enetered by the user matches the requested product, as the products start at index 0.
             answer.items = Number(answer.items) - 1;
+            var requestedProduct = "";
             connection.query(query, [answer.items], function (err, res) {
-                console.log(" \n You have selected the " + res[answer.items].product_name + ". \n");
+                requestedProduct = res[answer.items].product_name;
+                console.log(" \n You have selected the " + requestedProduct + ". \n");
+
                 inquirer
                     .prompt({
                         name: "quantity",
                         type: "input",
-                        message: "How many units of the " + res[answer.items].product_name + " would you like to purchase?",
+                        message: "How many units of the " + requestedProduct + " would you like to purchase?",
                         validate: function (value) {
                             if (isNaN(value) === false && value >= 1) {
                                 return true;
@@ -80,9 +84,11 @@ function shopping() {
                     })
                     .then(function (answer) {
                         var query = "SELECT * FROM products";
+                        var requestedQuantity = "";
                         connection.query(query, [answer.items], function (err, res) {
-                            console.log("\n You would like to buy a quantity of " + answer.quantity + ". \n");
-                            updateProduct();
+                            var requestedQuantity = answer.quantity;
+                            console.log("\n You would like to buy a quantity of " + requestedQuantity + ". \n");
+                            updateProduct(answer.items, requestedQuantity);
                         });
                     });
 
@@ -104,27 +110,35 @@ function showProducts() {
     });
 };
 
-function updateProduct() {
-    console.log("Updating products...\n");
-    var query = "SELECT * FROM products";
-    connection.query(query, function (err, res) {
-        for (var i = 0; i < res.length; i++) {
-            productInfo = "    ID: " + res[i].item_id + " || item: " + res[i].product_name + " || price: $" + res[i].price;
-            products.push(productInfo);
-            console.log(productInfo + "\n");
-        };
-    }); 
+function updateProduct(id, quantity) {
+    console.log(id);
+    console.log(quantity);
     var query = connection.query(
-        "UPDATE products SET stock_quantity = ? item_id = res[answer.items].product_name",
+        "UPDATE products SET ? WHERE ?",
         [{
-            stock_quantity: stock_quantity - answer.quantity
+            stock_quantity: "stock_quantity -" + quantity
+        },
+        {
+            item_id: id
         }],
         function (err, res) {
-            if (answer.quantity < 0) {
+            if (quantity < 0) {
                 console.log("\nINSUFFICIENT QUANTITY!\n")
                 shopping();
+            } else if (quantity === 0) {
+                connection.query(
+                    "DELETE FROM products WHERE ?", {
+                        item_id: id
+                    },
+                    function (err, res) {
+                        console.log("This item is now no longer in stock.");
+                    }
+                );
+
             } else {
+
                 console.log("\n" + res.affectedRows + " products updated!\n");
+                console.log(query.sql);
             };
         });
 }
