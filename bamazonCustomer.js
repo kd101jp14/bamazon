@@ -20,18 +20,8 @@ connection.connect(function (err) {
 function welcome() {
     console.log("\n *** WELCOME TO BAMAZON! ***");
     console.log("\n * Check out our products. * \n\n");
-    var products = [];
-    var productInfo = "";
-    var query = "SELECT * FROM products";
-    connection.query(query, function (err, res) {
-        for (var i = 0; i < res.length; i++) {
-            productInfo = "    ID: " + res[i].item_id + " || item: " + res[i].product_name + " || price: $" + res[i].price;
-            products.push(productInfo);
-            console.log(productInfo + "\n");
-        }
-        mainMenu();
-    });
-}
+    showProducts();
+};
 
 function mainMenu() {
     inquirer
@@ -92,42 +82,49 @@ function shopping() {
                         var query = "SELECT * FROM products";
                         connection.query(query, [answer.items], function (err, res) {
                             console.log("\n You would like to buy a quantity of " + answer.quantity + ". \n");
-
+                            updateProduct();
                         });
                     });
 
             });
         });
 };
-//             .then(function (answer) {
-//                 switch (answer) {
-//                     case 1:
-//                         console.log("hello");
-//                         break;
-//                     case 2:
-//                         console.log("hello");
-//                         break;
-//                     case 3:
-//                         console.log("hello");
-//                         break;
-//                     case 4:
-//                         console.log("hello");
-//                         break;
-//                     case 5:
-//                         console.log("hello");
-//                         break;
-//                     case 6:
-//                         console.log("hello");
-//                         break;
-//                     case 7:
-//                         console.log("hello");
-//                         break;
-//                     case 8:
-//                         console.log("hello");
-//                         break;
-//                     case 9:
-//                         console.log("hello");
-//                         break;
-//                     case 10:
-//                         console.log("hello");
-//                         break;
+
+function showProducts() {
+    var products = [];
+    var productInfo = "";
+    var query = "SELECT * FROM products";
+    connection.query(query, function (err, res) {
+        for (var i = 0; i < res.length; i++) {
+            productInfo = "    ID: " + res[i].item_id + " || item: " + res[i].product_name + " || price: $" + res[i].price;
+            products.push(productInfo);
+            console.log(productInfo + "\n");
+        }
+        mainMenu();
+    });
+};
+
+function updateProduct() {
+    console.log("Updating products...\n");
+    var query = "SELECT * FROM products";
+    connection.query(query, function (err, res) {
+        for (var i = 0; i < res.length; i++) {
+            productInfo = "    ID: " + res[i].item_id + " || item: " + res[i].product_name + " || price: $" + res[i].price;
+            products.push(productInfo);
+            console.log(productInfo + "\n");
+        };
+    }); 
+    var query = connection.query(
+        "UPDATE products SET stock_quantity = ? item_id = res[answer.items].product_name",
+        [{
+            stock_quantity: stock_quantity - answer.quantity
+        }],
+        function (err, res) {
+            if (answer.quantity < 0) {
+                console.log("\nINSUFFICIENT QUANTITY!\n")
+                shopping();
+            } else {
+                console.log("\n" + res.affectedRows + " products updated!\n");
+            };
+        });
+}
