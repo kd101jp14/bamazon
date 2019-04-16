@@ -73,13 +73,14 @@ function shopping() {
         })
         .then(function (answer) {
             var query = "SELECT * FROM products";
+            answer.items = Number(answer.items) - 1;
             connection.query(query, [answer.items], function (err, res) {
-                console.log(" \n You have selected Item: " + answer.items + ". \n");
+                console.log(" \n You have selected the " + res[answer.items].product_name + ". \n");
                 inquirer
                     .prompt({
                         name: "quantity",
                         type: "input",
-                        message: "How many of Item: " + answer.items + " would you like to purchase?",
+                        message: "How many units of the " + res[answer.items].product_name + " would you like to purchase?",
                         validate: function (value) {
                             if (isNaN(value) === false && value >= 1) {
                                 return true;
