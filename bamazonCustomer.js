@@ -82,7 +82,7 @@ function shopping() {
                         }
                     })
                     .then(function (answer) {
-                        console.log("\n You would like to buy a quantity of " + requestedQuantity + ". \n");
+                        console.log("\n You would like to buy a quantity of " + answer.quantity + ".\n");
                         updateProduct(requestedProduct, answer.quantity);
                     });
 
@@ -106,7 +106,7 @@ function showProducts() {
 
 function updateProduct(product, quantity) {
     if (quantity > product.stock_quantity) {
-        console.log("\nINSUFFICIENT QUANTITY!\n");
+        console.log("\n    INSUFFICIENT QUANTITY!\n");
         shopping();
     } else {
         var query = connection.query(
@@ -119,8 +119,14 @@ function updateProduct(product, quantity) {
                 }
             ],
             function (err, res) {
-                console.log("Order successful!");
-                
+                console.log("\n    ORDER SUCCESSFUL!\n");
+                function total() {
+                    var totalAmount = product.price * quantity;
+                    console.log("\n    Your total amount is $" + totalAmount + ".\n");
+                };
+                total();
+                mainMenu();
+
             });
     };
 }
